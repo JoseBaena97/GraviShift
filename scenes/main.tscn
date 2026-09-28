@@ -1,0 +1,84 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/level.gd" id="2_level"]
+[ext_resource type="PackedScene" path="res://scenes/cube.tscn" id="3_cube"]
+[ext_resource type="Script" path="res://scripts/gravity_arrow.gd" id="4_arrow"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource("2_level")
+
+[node name="Cube" parent="." instance=ExtResource("3_cube")]
+visible = false
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="LevelLabel" type="Label" parent="HUD"]
+anchor_right = 1.0
+offset_top = 50.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 36
+text = "Nivel 1"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="HUD"]
+anchor_right = 1.0
+offset_top = 100.0
+offset_bottom = 135.0
+theme_override_colors/font_color = Color(0.6, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+
+[node name="GravityArrow" type="Control" parent="HUD"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -45.0
+offset_top = 135.0
+offset_right = 45.0
+offset_bottom = 225.0
+mouse_filter = 2
+script = ExtResource("4_arrow")
+
+[node name="MessageLabel" type="Label" parent="HUD"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_colors/font_color = Color(0.45, 1, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 14
+theme_override_font_sizes/font_size = 52
+text = "¡Nivel completado!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RestartButton" type="Button" parent="HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -130.0
+offset_right = 294.0
+offset_bottom = -50.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 28
+text = "Reiniciar"
+
+[node name="ModeButton" type="Button" parent="HUD"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -294.0
+offset_top = -130.0
+offset_right = -24.0
+offset_bottom = -50.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 28
+text = "Modo: deslizar"
+
+[connection signal="pressed" from="HUD/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="HUD/ModeButton" to="." method="_on_mode_pressed"]

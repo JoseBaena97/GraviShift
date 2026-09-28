@@ -1,0 +1,14 @@
+# Godot
+.godot/
+/android/
+*.translation
+
+# Exportaciones
+/build/
+*.apk
+*.aab
+
+# Claves de firma: nunca subirlas al repositorio
+*.keystore
+*.jks
+export_credentials.cfg
