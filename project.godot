@@ -16,9 +16,15 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="GraviShift"
 config/description="Puzles de gravedad: guía el cubo de energía hasta la salida."
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/menu.tscn"
+config/version="0.2.0"
 config/features=PackedStringArray("4.7", "Mobile")
+config/quit_on_go_back=false
 boot_splash/bg_color=Color(0.04, 0.05, 0.09, 1)
+
+[autoload]
+
+Game="*res://scripts/game.gd"
 
 [display]
 
@@ -30,9 +36,15 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[gui]
+
+theme/custom="res://ui/theme.tres"
+
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
+sensors/enable_accelerometer=true
+sensors/enable_gravity=true
 
 [physics]
 
