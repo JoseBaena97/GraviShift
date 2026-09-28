@@ -2,7 +2,7 @@
 
 Modelo simplificado de la física: al cambiar la gravedad, el cubo se desliza
 casilla a casilla hasta chocar con una pared. Si pasa por la salida gana;
-si pasa por unos pinchos muere.
+si pasa por un peligro (pinchos o láser) muere.
 
 Uso: python tools/solve_levels.py
 """
@@ -12,6 +12,7 @@ from collections import deque
 from pathlib import Path
 
 LEVELS_FILE = Path(__file__).resolve().parent.parent / "scripts" / "levels.gd"
+HAZARDS = {"^", "=", "|"}
 DIRS = {"arriba": (0, -1), "abajo": (0, 1), "izquierda": (-1, 0), "derecha": (1, 0)}
 
 
@@ -34,7 +35,7 @@ def slide(grid, pos, d):
         x, y = nx, ny
         if cell == "E":
             return (x, y), "win"
-        if cell == "^":
+        if cell in HAZARDS:
             return (x, y), "dead"
 
 

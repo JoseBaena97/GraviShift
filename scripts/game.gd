@@ -45,11 +45,16 @@ func set_tilt_mode(enabled: bool) -> void:
 
 func start_level(index: int) -> void:
 	current_level = index
-	get_tree().change_scene_to_file(GAME_SCENE)
+	_change_scene(GAME_SCENE)
 
 
 func go_to_menu() -> void:
-	get_tree().change_scene_to_file(MENU_SCENE)
+	_change_scene(MENU_SCENE)
+
+
+func _change_scene(path: String) -> void:
+	get_tree().paused = false  # Por si se sale desde el menú de pausa.
+	get_tree().change_scene_to_file(path)
 
 
 ## Espacio que ocupan arriba la cámara frontal / muesca y abajo la barra de

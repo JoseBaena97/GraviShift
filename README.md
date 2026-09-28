@@ -19,19 +19,26 @@ Juego de puzles en 2D para Android hecho con **Godot 4**. Tienes que llevar un c
 | Arrastrar con el ratón | Deslizar (simula el dedo) |
 | R | Reiniciar el nivel |
 | T | Cambiar entre deslizar e inclinar |
+| Esc | Pausa |
 
 ## Estructura
 
 ```
 scenes/
-  main.tscn          Escena principal: nivel, cubo, cámara y HUD
+  menu.tscn          Menú principal y selector de niveles
+  main.tscn          Partida: nivel, cubo, cámara, HUD y pausa
   cube.tscn          El cubo (RigidBody2D)
+  background.tscn    Fondo con degradado compartido
 scripts/
-  main.gd            Bucle de juego, entrada y control de la gravedad
-  level.gd           Construye un nivel a partir de un mapa de texto
+  game.gd            Autoload: progreso guardado, opciones, cambio de escena
+  menu.gd            Menú y fondo animado
+  main.gd            Bucle de juego, entrada, gravedad, HUD y pausa
+  level.gd           Construye y dibuja un nivel a partir de un mapa de texto
   levels.gd          Datos de los niveles
-  cube.gd            Cubo: dibujo y teletransporte seguro
-  gravity_arrow.gd   Flecha del HUD que indica la gravedad
+  cube.gd            Cubo: estela, deformación y teletransporte seguro
+  pause_button.gd    Icono de pausa dibujado por código
+ui/
+  theme.tres         Tema visual de los botones
 tools/
   solve_levels.py    Comprueba que todos los niveles tienen solución
 ```
@@ -39,7 +46,7 @@ tools/
 ## Cómo funciona
 
 - **Gravedad global:** en lugar de empujar el cubo, se cambia la gravedad de todo el espacio físico con `PhysicsServer2D.area_set_param(..., AREA_PARAM_GRAVITY_VECTOR, dir)`. Así, cualquier objeto físico que se añada después (por ejemplo, partículas de fluido) la seguirá sin código extra.
-- **Niveles como texto:** cada nivel es un mapa ASCII (`#` pared, `P` inicio, `E` salida, `^` pinchos). Las paredes contiguas se fusionan en rectángulos grandes para reducir el número de colisiones y que el cubo no se enganche en las juntas.
+- **Niveles como texto:** cada nivel es un mapa ASCII (`#` pared, `P` inicio, `E` salida, `^` pinchos, `=` y `|` láseres). Las paredes contiguas se fusionan en rectángulos grandes para reducir el número de colisiones y que el cubo no se enganche en las juntas.
 - **Validación de niveles:** `python tools/solve_levels.py` simula el juego sobre una cuadrícula y hace una búsqueda en anchura (BFS) para asegurar que cada nivel tiene solución. También muestra la solución más corta.
 - **Inclinación suavizada:** la lectura del acelerómetro pasa por un filtro exponencial que no depende de los FPS, y una zona muerta ignora el sensor cuando el móvil está casi en horizontal.
 
@@ -47,9 +54,11 @@ tools/
 
 - [x] Prototipo: cubo, paredes, salida, pinchos y 5 niveles
 - [x] Control por deslizamiento, inclinación y teclado
-- [ ] Exportación y pruebas en un móvil Android
-- [ ] Menú principal, selector de niveles y guardado del progreso
-- [ ] Sonido y efectos (partículas y sacudida de cámara)
+- [x] Exportación y pruebas en un móvil Android
+- [x] Menú principal, selector de niveles y guardado del progreso
+- [x] Estilo neón: estela de partículas, deformación del cubo, láseres, portal animado
+- [x] HUD con contador de giros (shifts), tiempo y pausa
+- [ ] Sonido
 - [ ] Más mecánicas: interruptores, bloques móviles, portales
 - [ ] Fluido de energía con partículas y shader de *metaballs*
 - [ ] Publicación en itch.io o Google Play

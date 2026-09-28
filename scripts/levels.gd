@@ -6,7 +6,9 @@ extends RefCounted
 ##   .  vacío
 ##   P  posición inicial del cubo
 ##   E  salida
-##   ^  pinchos (reinician el nivel)
+##   ^  pinchos (reinician el nivel); se clavan en la pared vecina
+##   =  láser horizontal
+##   |  láser vertical
 ##
 ## La gravedad empieza siempre hacia abajo.
 
@@ -58,6 +60,19 @@ const DATA := [
 			"###.#.#.#.#",
 			"#^..#.....#",
 			"#.###.###.#",
+			"#.........#",
+			"###########",
+		],
+	},
+	{
+		"name": "Láseres",
+		"hint": "Los láseres también son peligrosos",
+		"map": [
+			"###########",
+			"#P..|.....#",
+			"#.###.###.#",
+			"#...#...#E#",
+			"###.#=#.#.#",
 			"#.........#",
 			"###########",
 		],

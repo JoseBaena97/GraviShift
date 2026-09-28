@@ -4,7 +4,7 @@ extends Control
 
 const LEVEL_BUTTON_SIZE := Vector2(150, 150)
 const COMPLETED_COLOR := Color(0.45, 1.0, 0.55)
-const PARTICLE_COLOR := Color(0.35, 0.95, 1.0, 0.12)
+const PARTICLE_COLOR := Color(0.2, 0.8, 1.0, 0.12)
 const GRID_COLOR := Color(1, 1, 1, 0.035)
 const GRID_STEP := 64.0
 

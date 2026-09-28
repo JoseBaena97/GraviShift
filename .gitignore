@@ -12,3 +12,6 @@
 *.keystore
 *.jks
 export_credentials.cfg
+
+# Python
+__pycache__/
