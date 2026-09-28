@@ -5,7 +5,7 @@ extends Node2D
 ## colisiones de las paredes, salida y peligros. También lo dibuja.
 
 signal exit_reached
-signal hazard_touched
+signal hazard_touched(kind: String)  # "spike" o "laser"
 
 const TILE := 64
 
@@ -38,6 +38,14 @@ func pixel_size() -> Vector2:
 	return Vector2(cols, rows) * TILE
 
 
+## Centros de las casillas con láser (en coordenadas locales), para el zumbido.
+func laser_positions() -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	for cell: Vector2i in _lasers:
+		result.append(_cell_center(cell))
+	return result
+
+
 func build(map: Array) -> void:
 	_clear()
 	rows = map.size()
@@ -59,23 +67,23 @@ func build(map: Array) -> void:
 					start_position = center
 				"E":
 					_exit_cell = cell
-					_add_area(center, Vector2(TILE, TILE) * 0.5, exit_reached)
+					_add_area(center, Vector2(TILE, TILE) * 0.5, exit_reached.emit)
 				"^":
 					var anchor := _spike_anchor(cell)
 					_spikes[cell] = anchor
 					if anchor == Vector2i.ZERO:
-						_add_area(center, Vector2(TILE, TILE) * 0.6, hazard_touched)
+						_add_area(center, Vector2(TILE, TILE) * 0.6, hazard_touched.emit.bind("spike"))
 					else:
 						# La zona peligrosa es la mitad de la casilla pegada a la pared.
 						var along := Vector2(anchor).abs()
 						var size := Vector2(TILE, TILE) * (Vector2.ONE * 0.9 - along * 0.4)
-						_add_area(center + Vector2(anchor) * TILE * 0.25, size, hazard_touched)
+						_add_area(center + Vector2(anchor) * TILE * 0.25, size, hazard_touched.emit.bind("spike"))
 				"=":
 					_lasers[cell] = true
-					_add_area(center, Vector2(TILE, TILE * 0.25), hazard_touched)
+					_add_area(center, Vector2(TILE, TILE * 0.25), hazard_touched.emit.bind("laser"))
 				"|":
 					_lasers[cell] = false
-					_add_area(center, Vector2(TILE * 0.25, TILE), hazard_touched)
+					_add_area(center, Vector2(TILE * 0.25, TILE), hazard_touched.emit.bind("laser"))
 
 	_build_wall_colliders()
 	queue_redraw()
@@ -101,8 +109,8 @@ func _spike_anchor(cell: Vector2i) -> Vector2i:
 	return Vector2i.ZERO
 
 
-## Área de detección que emite `signal_to_emit` cuando el cubo entra en ella.
-func _add_area(center: Vector2, size: Vector2, signal_to_emit: Signal) -> void:
+## Área de detección que llama a `on_enter` cuando el cubo entra en ella.
+func _add_area(center: Vector2, size: Vector2, on_enter: Callable) -> void:
 	var area := Area2D.new()
 	area.position = center
 	var shape := CollisionShape2D.new()
@@ -112,7 +120,7 @@ func _add_area(center: Vector2, size: Vector2, signal_to_emit: Signal) -> void:
 	area.add_child(shape)
 	area.body_entered.connect(func(body: Node2D) -> void:
 		if body is Cube:
-			signal_to_emit.emit()
+			on_enter.call()
 	)
 	add_child(area)
 

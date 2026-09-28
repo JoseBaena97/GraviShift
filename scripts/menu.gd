@@ -16,6 +16,7 @@ const GRAVITY_CHANGE_INTERVAL := 3.0
 @onready var levels_panel: Control = $LevelsPanel
 @onready var play_button: Button = $MainPanel/PlayButton
 @onready var mode_button: Button = $MainPanel/ModeButton
+@onready var sound_button: Button = $MainPanel/SoundButton
 @onready var level_grid: GridContainer = $LevelsPanel/LevelGrid
 @onready var version_label: Label = $VersionLabel
 
@@ -29,6 +30,7 @@ func _ready() -> void:
 	version_label.text = "v%s" % ProjectSettings.get_setting("application/config/version")
 	_update_play_button()
 	_update_mode_button()
+	_update_sound_button()
 	_build_level_grid()
 	_show_levels(false)
 
@@ -73,6 +75,10 @@ func _update_mode_button() -> void:
 	mode_button.text = "Control: inclinar" if Game.tilt_mode else "Control: deslizar"
 
 
+func _update_sound_button() -> void:
+	sound_button.text = "Sonido: sí" if Game.sfx_enabled else "Sonido: no"
+
+
 func _build_level_grid() -> void:
 	for child in level_grid.get_children():
 		child.queue_free()
@@ -106,6 +112,11 @@ func _on_back_pressed() -> void:
 func _on_mode_pressed() -> void:
 	Game.set_tilt_mode(not Game.tilt_mode)
 	_update_mode_button()
+
+
+func _on_sound_pressed() -> void:
+	Game.set_sfx_enabled(not Game.sfx_enabled)
+	_update_sound_button()
 
 
 # --- Fondo animado -----------------------------------------------------------

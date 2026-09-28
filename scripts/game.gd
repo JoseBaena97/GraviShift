@@ -9,6 +9,7 @@ const GAME_SCENE := "res://scenes/main.tscn"
 
 var completed_levels := 0  # Los niveles 0..completed_levels-1 están superados.
 var tilt_mode := false
+var sfx_enabled := true
 var current_level := 0
 
 
@@ -40,6 +41,12 @@ func complete_level(index: int) -> void:
 
 func set_tilt_mode(enabled: bool) -> void:
 	tilt_mode = enabled
+	save_progress()
+
+
+func set_sfx_enabled(enabled: bool) -> void:
+	sfx_enabled = enabled
+	Audio.set_sfx_enabled(enabled)
 	save_progress()
 
 
@@ -82,6 +89,7 @@ func save_progress() -> void:
 	var config := ConfigFile.new()
 	config.set_value("progress", "completed_levels", completed_levels)
 	config.set_value("options", "tilt_mode", tilt_mode)
+	config.set_value("options", "sfx_enabled", sfx_enabled)
 	config.save(SAVE_PATH)
 
 
@@ -91,3 +99,4 @@ func load_progress() -> void:
 		return  # Primera partida.
 	completed_levels = clampi(config.get_value("progress", "completed_levels", 0), 0, level_count())
 	tilt_mode = config.get_value("options", "tilt_mode", false)
+	sfx_enabled = config.get_value("options", "sfx_enabled", true)

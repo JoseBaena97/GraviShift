@@ -20,6 +20,17 @@ const HAZARD_COLOR := Color(1.0, 0.22, 0.32)
 const SHAKE_STRENGTH := 14.0
 const SHAKE_DECAY := 8.0
 
+## Tono del sonido de cambio de gravedad según la dirección: más agudo hacia
+## arriba, más grave hacia abajo.
+const SHIFT_PITCH := {
+	Vector2.UP: 1.2,
+	Vector2.RIGHT: 1.08,
+	Vector2.LEFT: 1.0,
+	Vector2.DOWN: 0.88,
+}
+## Distancia (px) a la que deja de oírse el zumbido de un láser.
+const HUM_RANGE := 4.0 * Level.TILE
+
 @onready var level: Level = $Level
 @onready var cube: Cube = $Cube
 @onready var camera: Camera2D = $Camera2D
@@ -54,10 +65,17 @@ var _intro_tween: Tween
 func _ready() -> void:
 	level.exit_reached.connect(_on_exit_reached)
 	level.hazard_touched.connect(_on_hazard_touched)
+	cube.impacted.connect(_on_cube_impacted)
 	get_viewport().size_changed.connect(_apply_safe_area)
 	_apply_safe_area()
 	_update_mode_button()
 	load_level(Game.current_level)
+
+
+func _exit_tree() -> void:
+	# Audio es global y sobrevive al cambio de escena: hay que dejarlo limpio.
+	Audio.set_hum_level(0.0)
+	Audio.set_music_muffled(false)
 
 
 func load_level(index: int, show_intro := true) -> void:
@@ -121,6 +139,7 @@ func set_gravity(direction: Vector2) -> void:
 		_last_axis = axis
 		shifts += 1
 		_update_stats()
+		Audio.play("shift", -4.0, SHIFT_PITCH.get(axis, 1.0))
 
 
 # --- Bucle -------------------------------------------------------------------
@@ -129,6 +148,7 @@ func _process(delta: float) -> void:
 	if not _busy:
 		elapsed += delta
 		_update_stats()
+	_update_laser_hum()
 
 	if _shake > 0.1:
 		camera.offset = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _shake
@@ -151,6 +171,17 @@ func _physics_process(delta: float) -> void:
 	# Suavizado exponencial: independiente de los FPS y sin temblores del sensor.
 	var weight := 1.0 - exp(-TILT_SMOOTHING * delta)
 	set_gravity(gravity_dir.slerp(target.normalized(), weight))
+
+
+## El zumbido sube cuanto más cerca está el cubo del láser más próximo.
+func _update_laser_hum() -> void:
+	if _busy or not cube.visible:
+		Audio.set_hum_level(0.0)
+		return
+	var nearest := INF
+	for pos in level.laser_positions():
+		nearest = minf(nearest, cube.global_position.distance_to(level.to_global(pos)))
+	Audio.set_hum_level(clampf(1.0 - nearest / HUM_RANGE, 0.0, 1.0))
 
 
 func _update_stats() -> void:
@@ -217,6 +248,7 @@ func _on_exit_reached() -> void:
 	if _busy:
 		return
 	_busy = true
+	Audio.play("portal")
 	_spawn_burst(cube.global_position, EXIT_COLOR)
 	cube.hide()
 	Game.complete_level(current_level)
@@ -232,15 +264,22 @@ func _on_exit_reached() -> void:
 		load_level(current_level + 1)
 
 
-func _on_hazard_touched() -> void:
+func _on_hazard_touched(kind: String) -> void:
 	if _busy:
 		return
 	_busy = true
+	Audio.play("laser_death" if kind == "laser" else "spike_death")
 	_spawn_burst(cube.global_position, HAZARD_COLOR)
 	_shake = SHAKE_STRENGTH
 	cube.hide()
 	await get_tree().create_timer(0.6).timeout
 	load_level(current_level, false)
+
+
+func _on_cube_impacted(strength: float) -> void:
+	if _busy:
+		return
+	Audio.play("impact", linear_to_db(lerpf(0.35, 1.0, strength)))
 
 
 ## Explosión de partículas de un solo uso que se borra al terminar.
@@ -273,6 +312,9 @@ func _spawn_burst(pos: Vector2, color: Color) -> void:
 func _set_paused(paused: bool) -> void:
 	get_tree().paused = paused
 	pause_panel.visible = paused
+	Audio.set_music_muffled(paused)
+	if paused:
+		Audio.set_hum_level(0.0)  # _process no corre en pausa y no lo apagaría.
 	if paused:
 		pause_level_info.text = "Nivel %d · %s" % [current_level + 1, Levels.DATA[current_level]["name"]]
 		_update_mode_button()

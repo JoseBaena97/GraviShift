@@ -5,6 +5,8 @@ extends RigidBody2D
 ## del mundo, que controla Main. Todo lo visual (estela, deformación) es
 ## decorativo y no afecta a la colisión.
 
+signal impacted(strength: float)  # 0..1 según lo fuerte del choque.
+
 const SIZE := 44.0  # Debe coincidir con la CollisionShape2D de cube.tscn.
 const CORE_COLOR := Color(0.2, 0.8, 1.0)  # Azul eléctrico.
 
@@ -13,6 +15,7 @@ const STRETCH_PER_SPEED := 1.0 / 2500.0
 const MAX_STRETCH := 0.3
 const IMPACT_MIN_SPEED_DROP := 350.0
 const IMPACT_RECOVERY := 10.0
+const IMPACT_FULL_STRENGTH := 1500.0  # Frenazo (px/s) que cuenta como choque máximo.
 
 var _pending_position := Vector2.ZERO
 var _has_pending_teleport := false
@@ -52,6 +55,7 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 		state.transform = Transform2D(0.0, _pending_position)
 		state.linear_velocity = Vector2.ZERO
 		state.angular_velocity = 0.0
+		_previous_velocity = Vector2.ZERO  # Si no, el teletransporte parecería un choque.
 		_has_pending_teleport = false
 
 
@@ -61,6 +65,7 @@ func _physics_process(_delta: float) -> void:
 	if drop > IMPACT_MIN_SPEED_DROP:
 		_impact = minf(drop * STRETCH_PER_SPEED * 1.5, MAX_STRETCH)
 		_impact_dir = _previous_velocity.normalized()
+		impacted.emit(clampf(drop / IMPACT_FULL_STRENGTH, 0.0, 1.0))
 	_previous_velocity = linear_velocity
 
 

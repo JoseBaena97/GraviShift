@@ -42,7 +42,7 @@ anchor_bottom = 0.5
 offset_left = -240.0
 offset_top = -80.0
 offset_right = 240.0
-offset_bottom = 300.0
+offset_bottom = 430.0
 theme_override_constants/separation = 28
 
 [node name="PlayButton" type="Button" parent="MainPanel"]
@@ -60,6 +60,11 @@ text = "Niveles"
 custom_minimum_size = Vector2(0, 100)
 focus_mode = 0
 text = "Control: deslizar"
+
+[node name="SoundButton" type="Button" parent="MainPanel"]
+custom_minimum_size = Vector2(0, 100)
+focus_mode = 0
+text = "Sonido: sí"
 
 [node name="LevelsPanel" type="VBoxContainer" parent="."]
 visible = false
@@ -104,4 +109,5 @@ horizontal_alignment = 1
 [connection signal="pressed" from="MainPanel/PlayButton" to="." method="_on_play_pressed"]
 [connection signal="pressed" from="MainPanel/LevelsButton" to="." method="_on_levels_pressed"]
 [connection signal="pressed" from="MainPanel/ModeButton" to="." method="_on_mode_pressed"]
+[connection signal="pressed" from="MainPanel/SoundButton" to="." method="_on_sound_pressed"]
 [connection signal="pressed" from="LevelsPanel/BackButton" to="." method="_on_back_pressed"]
